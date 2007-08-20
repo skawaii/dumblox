@@ -1,0 +1,13 @@
+#summary A list of things that we still need to do.
+#labels Phase-Implementation
+
+== TODO ==
+  * Add the music to the game.
+  * Create sound effects.
+  * Add sound effects to the game.
+  * Add a menu at the top of the window.
+  * When the game is paused, blank out the playing area.
+  * Keep track of high scores.
+
+
+
