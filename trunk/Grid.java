@@ -41,9 +41,6 @@ public class Grid implements DumbloxConstants {
     /**
      * Draws a square on the grid. This will be called within public method drawBlock.
      * @param square the square to be drawn on the grid
-     * 
-     * TODO This method seems out of place here in the Grid class, but I guess having it here
-     * allows us to have one Graphics obj that isn't passed around, yea? - Jason
      */
     private void drawSquare(Square square) {
         // don't draw squares that are above the grid

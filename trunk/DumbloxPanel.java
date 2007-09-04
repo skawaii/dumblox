@@ -2,7 +2,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -25,7 +24,7 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
     
     private long game_start_time;
     private long frames_skipped = 0;
-    private long prev_stats_time;
+    private long prev_stats_time; // TODO also not being used anywhere...
     
     private int loop_period; // period between screen drawing
     private int game_level;  // used to determine scoring
@@ -35,8 +34,9 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
     
     //Number of cycles since the active block has been moved down by the game (not user)
     private int periods_since_forced_move; 
-    
-    private Dumblox dx_top;
+ 
+    // TODO dx_top really doesn't seem to be of any use...
+	private Dumblox dx_top;
     
     private Graphics2D db_graphics;
     private Image db_image = null;
@@ -63,8 +63,6 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
     public static Image GREY_IMAGE;
     
     public static Image BACKGROUND;
-    
-    //MORE
     
     /**
      * DumbloxPanel constructor that sets up some variables and configures
@@ -207,8 +205,8 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
         running = true;
         
         while (running) {
-            gameUpdate();  // game state is updated
-            gameRender();  // render to a buffer
+            updateGame();  // game state is updated
+            renderGame();  // draw to an off-screen buffer
             paintScreen(); // draw buffer to screen
             
             after_time = System.currentTimeMillis();
@@ -242,17 +240,79 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
             
             while ((excess_time > loop_period) && (skips < MAX_FRAME_SKIPS)) {
                 excess_time -= loop_period;
-                gameUpdate();    // update state but don't render
+                updateGame();    // update state but don't render
                 skips++;
             }
             
             frames_skipped += skips;
         }
         
+        // once it kicks out of the while loop (i.e. !running), we want to exit
         System.exit(0);
+    }
+
+    /**
+     * Updates the game state. This method will be run every
+     * period (iteration of the run() loop).
+     */
+    private void updateGame() {
+        timer.tick(); //Timer tick (scheduled tasks are performed here)
+        
+        if (!is_paused && !game_over && active_block != null) {
+            //Make the active block move down every FPS-gameSpeed cycles
+            if (periods_since_forced_move >= Dumblox.DEFAULT_FPS - game_speed) {
+                moveBlockDown();
+            }
+            else {
+                periods_since_forced_move++;
+            }
+            
+            checkForGameOver();
+        }
     }
     
     /**
+     * Draws the current frame to an off-screen image buffer.
+     */
+    private void renderGame() {
+        if (db_image == null) {
+            /* create the off-screen image buffer.
+             * NOTE: createImage is a method from Component,
+             * inherited by JPanel.
+             */
+            db_image = createImage(PANEL_WIDTH, PANEL_HEIGHT);
+            
+            if (db_image == null) {
+                System.out.println("dbImage is null");
+                return;
+            }
+            else {
+                // getGraphics() creates a drawing context
+                db_graphics = (Graphics2D)db_image.getGraphics();
+                grid.setGraphics(db_graphics);
+            }
+        }
+        
+        // draw the background
+        drawBackground();
+        
+        // draw game elements here
+        if (active_block != null && next_block != null && !is_paused) {
+            active_block.draw(grid);
+            next_block.draw(grid);
+        }
+        
+        // draw the grid and score
+        if (!is_paused) grid.draw();
+        drawGameLevel();
+        drawGameScore();
+        drawRowsCleared();
+        
+        if (is_paused) printPauseMessage();
+        if (game_over) printGameOverMessage();
+    }
+    
+	/**
      * Actively renders the buffer image to the screen
      */
     private void paintScreen() {
@@ -330,68 +390,6 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
      */
     public void stopGame() { 
         running = false; 
-    }
-    
-    /**
-     * Updates the game state. This method will be run every
-     * period (iteration of the run() loop).
-     */
-    private void gameUpdate() {
-        timer.tick(); //Timer tick (scheduled tasks are performed here)
-        
-        if (!is_paused && !game_over && active_block != null) {
-            //Make the active block move down every FPS-gameSpeed cycles
-            if (periods_since_forced_move >= Dumblox.DEFAULT_FPS - game_speed) {
-                moveBlockDown();
-            }
-            else {
-                periods_since_forced_move++;
-            }
-            
-            checkForGameOver();
-        }
-    }
-    
-    /**
-     * Draws the current frame to an off-screen image buffer.
-     */
-    private void gameRender() {
-        if (db_image == null) {
-            /* create the off-screen image buffer.
-             * NOTE: createImage is a method from Component,
-             * inherited by JPanel.
-             */
-            db_image = createImage(PANEL_WIDTH, PANEL_HEIGHT);
-            
-            if (db_image == null) {
-                System.out.println("dbImage is null");
-                return;
-            }
-            else {
-                // getGraphics() creates a drawing context
-                db_graphics = (Graphics2D)db_image.getGraphics();
-                grid.setGraphics(db_graphics);
-            }
-        }
-        
-        // draw the background
-        //db_graphics.setColor(BACKGROUND_COLOR);
-        //db_graphics.fillRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-        drawBackground();
-        
-        // draw game elements here
-        if (active_block != null && next_block != null) {
-            active_block.draw(grid);
-            next_block.draw(grid);
-        }
-        
-        // draw the grid and score
-        grid.draw();
-        drawGameLevel();
-        drawGameScore();
-        drawRowsCleared();
-        
-        if (game_over) gameOverMessage();
     }
     
     /**
@@ -493,13 +491,47 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
     }
     
     /**
-     * Draws the game over message to the screen.
-     * @param g the Graphics object used to draw the message
+     * Placed in a method because the same code was getting called at least twice
      */
-    private void gameOverMessage() {
+    private void moveBlockDown() {
+    	if (!active_block.move(grid, Dumblox.Direction.DOWN)) {
+            //Collision has occurred. Add active_block to pile and make a new block
+            addBlockToPile();
+        }
+    	
+        periods_since_forced_move = 0;
+    }
+
+    /**
+     * The grid is keeping track of whether or not a block colliding with the
+     * pile should cause the game to end, so we just ask Grid if the game is over.
+     * If the game is over, then set the game_over variable accordingly.
+     */
+    public void checkForGameOver() {
+    	if (grid.isGameOver()) game_over = true;
+    }
+    
+    /**
+     * Draws the game over message to the screen.
+     */
+    private void printGameOverMessage() {
+    	// TODO make this msg into a graphic instead of text
         String msg = "You're an incompetent fool";
-        int x = (PANEL_WIDTH / 3);
-        int y = (PANEL_HEIGHT / 2);
+        int x = PANEL_WIDTH / 3;
+        int y = PANEL_HEIGHT / 2;
+        
+        db_graphics.drawString(msg, x, y);
+    }
+    
+    /**
+     * When the game is paused, print "PAUSE" on the
+     * screen so the player knows the game is paused.
+     */
+    private void printPauseMessage() {
+    	// TODO make this msg into a graphic instead of text
+    	String msg = "PAUSE";
+        int x = PANEL_WIDTH / 2 - 10;
+        int y = PANEL_HEIGHT / 2;
         
         db_graphics.drawString(msg, x, y);
     }
@@ -551,25 +583,5 @@ public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
             }
         }
     }
-    
-    /**
-     * The grid is keeping track of whether or not a block colliding with the
-     * pile should cause the game to end, so we just ask Grid if the game is over.
-     * If the game is over, then set the game_over variable accordingly.
-     */
-    public void checkForGameOver() {
-    	if (grid.isGameOver()) game_over = true;
-    }
-    
-    /**
-     * Placed in a method because the same code was getting called at least twice
-     */
-    private void moveBlockDown() {
-    	if (!active_block.move(grid, Dumblox.Direction.DOWN)) {
-            //Collision has occurred. Add active_block to pile and make a new block
-            addBlockToPile();
-        }
-    	
-        periods_since_forced_move = 0;
-    }
+  
 }
