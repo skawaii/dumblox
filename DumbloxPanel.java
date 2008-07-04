@@ -1,14 +1,26 @@
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.HashMap;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
 public class DumbloxPanel extends JPanel implements Runnable, DumbloxConstants {
-    /* Number of frames with a delay of 0 ms before the animation thread yields
+	private static final long serialVersionUID = 2813659075394394750L;
+
+	/* Number of frames with a delay of 0 ms before the animation thread yields
     to other running threads. */
     private static final int NUM_DELAYS_PER_YIELD = 16;
 
