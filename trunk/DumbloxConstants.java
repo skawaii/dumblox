@@ -55,24 +55,24 @@ public interface DumbloxConstants {
     int NUM_FADE_CYCLES = 60;
     
     //Square image files
-    String RED_SQUARE = "/pics/red2.bmp";
-    String BLUE_SQUARE = "/pics/blue2.bmp";
-    String GREEN_SQUARE = "/pics/green2.bmp";
-    String YELLOW_SQUARE = "/pics/yellow2.bmp";
-    String PURPLE_SQUARE = "/pics/purple2.bmp";
-    String CYAN_SQUARE = "/pics/cyan2.bmp";
-    String GREY_SQUARE = "/pics/grey2.bmp";
+    String RED_SQUARE = "/images/red2.bmp";
+    String BLUE_SQUARE = "/images/blue2.bmp";
+    String GREEN_SQUARE = "/images/green2.bmp";
+    String YELLOW_SQUARE = "/images/yellow2.bmp";
+    String PURPLE_SQUARE = "/images/purple2.bmp";
+    String CYAN_SQUARE = "/images/cyan2.bmp";
+    String GREY_SQUARE = "/images/grey2.bmp";
     
-    String BACKGROUND0 = "/pics/background0.png";
-    String BACKGROUND1 = "/pics/background1.png";
-    String BACKGROUND2 = "/pics/background2.png";
-    String BACKGROUND3 = "/pics/background3.png";
-    String BACKGROUND4 = "/pics/background4.png";
-    String BACKGROUND5 = "/pics/background5.png";
-    String BACKGROUND6 = "/pics/background6.png";
-    String BACKGROUND7 = "/pics/background7.png";
-    String BACKGROUND8 = "/pics/background8.png";
-    String BACKGROUND9 = "/pics/background9.png";
-    String BACKGROUND10 = "/pics/background10.png";
-    String BACKGROUND11 = "/pics/background11.png";
+    String BACKGROUND0 = "/images/background0.png";
+    String BACKGROUND1 = "/images/background1.png";
+    String BACKGROUND2 = "/images/background2.png";
+    String BACKGROUND3 = "/images/background3.png";
+    String BACKGROUND4 = "/images/background4.png";
+    String BACKGROUND5 = "/images/background5.png";
+    String BACKGROUND6 = "/images/background6.png";
+    String BACKGROUND7 = "/images/background7.png";
+    String BACKGROUND8 = "/images/background8.png";
+    String BACKGROUND9 = "/images/background9.png";
+    String BACKGROUND10 = "/images/background10.png";
+    String BACKGROUND11 = "/images/background11.png";
 }
