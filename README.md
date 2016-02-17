@@ -5,11 +5,11 @@ Dumblox is a personal project by two guys that got bored during college and want
 
 Requirements:
 
-    * JRE 5 or greater (the most current version is at http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+* JRE 5 or greater (the most current version is [here](http://www.oracle.com/technetwork/java/javase/downloads/index.html)).
 
 Instructions:
 
-    * z rotates the block counter-clockwise
-    * x rotates the block clockwise
-    * space drops the block
-    * arrow keys move the block
+* z rotates the block counter-clockwise
+* x rotates the block clockwise
+* space drops the block
+* arrow keys move the block
